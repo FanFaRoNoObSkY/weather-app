@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # Config files
-src/config/setting.tsx
+src/config/settings.tsx
