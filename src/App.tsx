@@ -1,34 +1,80 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import { CityWeather } from './services/interfaces'
+import { WEATHER_API_KEY, WEATHER_API_URL } from './config/settings'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [city, setCity] = useState<String>('')
+  const [cityWeather, setCityWeather] = useState<CityWeather>()
+  const [loading, setLoading] = useState<Boolean>(false)
+
+  const searchHandler = () => {
+    setLoading(true)
+    dataFetch()
+  }
+
+  const dataFetch = async () => {
+    fetch(`${WEATHER_API_URL}?key=${WEATHER_API_KEY}&q=${city}&aqi=no`)
+    .then(res=>res.json())
+    .then(data=>{
+      setCityWeather(data)
+      setLoading(false)
+    })
+  }
 
   return (
-    <>
+    <div className="App">
+      <h1>Weather App</h1>
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        Ingrese la ciudad la cual desea consultar: 
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      <div className='inputContainer'>
+        <input 
+          className="textInput"
+          type="text" 
+          placeholder="Lima" 
+          onChange={(e)=>setCity(e.currentTarget.value)}
+          />
+        <input 
+          className="buttonInput"
+          type="button"
+          value="Buscar" 
+          onClick={searchHandler}
+          />
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+      { 
+      loading?
+        <>
+          <div>Cargando...</div>
+        </>
+        :<>
+          <div className="infoContainer">
+            <div className="textContainer">
+              <div className="infoTop">
+                <div className='infoRow'>
+                  {cityWeather?.location.name}, {cityWeather?.location.region}
+                </div>
+                <div className='infoRow'>
+                  {cityWeather?.location.country} 
+                </div>
+              </div>
+
+              <div className='infoBottom'>
+                <div className='infoRow'>
+                  Temperatura: {cityWeather?.current.temp_c}°C
+                </div>
+                <div className='infoRow'>
+                  {cityWeather?.current.condition.text}
+                </div>
+              </div>
+            </div>
+            <div className='imageContainer'>
+              <img src={cityWeather?.current.condition.icon} alt="Weather condition" />
+            </div>
+          </div>
+        </>
+      }
+    </div>
   )
 }
 
